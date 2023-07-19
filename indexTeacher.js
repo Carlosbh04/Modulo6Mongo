@@ -8,12 +8,10 @@ const marksSchema = new mongoose.Schema({
   studentFirstName: String,
   studentLastName: String,
   teacher: {
-    id: { type: mongoose.Schema.Types.ObjectId, required: true },
     firstName: String,
     lastName: String
   }
 });
-
 
 const Marks = mongoose.model('Marks', marksSchema, 'marks');
 
