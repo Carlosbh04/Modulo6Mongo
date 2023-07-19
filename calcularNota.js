@@ -106,18 +106,26 @@ async function calculateAverageMark(subjectName) {
 // Calcular el número total de alumnos que hay en el bootcamp incluyendo repetidos.
 async function countTotalStudents() {
   try {
-    const result = await Marks.distinct("studentFirstName", {}).countDocuments();
-    return result;
+    const result = await Marks.aggregate([
+      { $group: { _id: "$studentFirstName" } },
+      { $count: "totalStudents" }
+    ]);
+
+    return result.length > 0 ? result[0].totalStudents : 0;
   } catch (error) {
     console.error('Error al contar el número total de alumnos:', error);
     throw error;
   }
 }
 
+
 // Listar el nombre y los apellidos de todos los alumnos incluyendo repetidos.
 async function listAllStudents() {
   try {
-    const result = await Marks.find({}, { studentFirstName: 1, studentLastName: 1 });
+    const result = await Marks.aggregate([
+      { $project: { _id: 0, studentFirstName: 1, studentLastName: 1 } }
+    ]);
+
     return result;
   } catch (error) {
     console.error('Error al obtener la lista de alumnos:', error);
@@ -125,16 +133,21 @@ async function listAllStudents() {
   }
 }
 
+
 // Listar el nombre y los apellidos de todos los profesores incluyendo repetidos.
 async function listAllTeachers() {
   try {
-    const result = await Marks.distinct("teacher", {});
+    const result = await Marks.aggregate([
+      { $project: { _id: 0, teacher: 1 } }
+    ]);
+
     return result;
   } catch (error) {
     console.error('Error al obtener la lista de profesores:', error);
     throw error;
   }
 }
+
 
 // Mostrar el número total de alumnos por grupo ordenados por grupo en orden inverso al alfabeto.
 async function countStudentsByGroup() {
